@@ -14,6 +14,7 @@ function CropRecommendation() {
   const [result, setResult] = useState("");
   const [loading, setLoading] = useState(false);
   const [weatherInfo, setWeatherInfo] = useState(null);
+  const [submittedData, setSubmittedData] = useState(null);
 
   // Handle Input Change
   const handleChange = (e) => {
@@ -48,6 +49,7 @@ function CropRecommendation() {
         humidity: weather.main.humidity,
         rainfall: 100, // Temporary value
       };
+      setSubmittedData(cropData);
 
       // Get crop recommendation
       const data = await recommendCrop(cropData);
@@ -139,17 +141,69 @@ function CropRecommendation() {
 
       </form>
 
-      {result && (
-        <div className="mt-6 bg-green-100 p-4 rounded-lg text-center shadow">
-          <h2 className="text-xl font-bold text-green-700">
-            🌱 Recommended Crop
-          </h2>
+      {result && weatherInfo && (
+    <div className="mt-6 bg-linear-to-r from-green-100 to-green-50 border border-green-300 rounded-xl shadow-lg p-6">
 
-          <p className="text-2xl font-bold mt-3 text-green-800">
-            {result}
-          </p>
-        </div>
-      )}
+    <div className="text-center mb-6">
+      <h2 className="text-3xl font-bold text-green-700">
+        🌾 Crop Recommendation
+      </h2>
+
+      <p className="text-green-600 mt-2">
+        Based on your soil and weather conditions
+      </p>
+
+      <div className="mt-4 inline-block bg-green-700 text-white px-6 py-3 rounded-full text-2xl font-bold">
+        🌱 {result}
+      </div>
+    </div>
+
+    <div className="grid grid-cols-2 gap-4">
+
+      <div className="bg-white rounded-lg p-4 shadow">
+        <h3 className="font-bold">📍 City</h3>
+        <p>{weatherInfo.name}</p>
+      </div>
+
+      <div className="bg-white rounded-lg p-4 shadow">
+        <h3 className="font-bold">🌡 Temperature</h3>
+        <p>{submittedData?.temperature} °C</p>
+      </div>
+
+      <div className="bg-white rounded-lg p-4 shadow">
+        <h3 className="font-bold">💧 Humidity</h3>
+        <p>{submittedData?.humidity}%</p>
+      </div>
+
+      <div className="bg-white rounded-lg p-4 shadow">
+        <h3 className="font-bold">🧪 Soil pH</h3>
+        <p>{submittedData?.ph}</p>
+      </div>
+
+      <div className="bg-white rounded-lg p-4 shadow">
+        <h3 className="font-bold">🌱 Nitrogen</h3>
+        <p>{submittedData?.nitrogen}</p>
+      </div>
+
+      <div className="bg-white rounded-lg p-4 shadow">
+        <h3 className="font-bold">🧪 Phosphorus</h3>
+        <p>{submittedData?.phosphorus}</p>
+      </div>
+
+      <div className="bg-white rounded-lg p-4 shadow">
+        <h3 className="font-bold">🪴 Potassium</h3>
+        <p>{submittedData?.potassium}</p>
+      </div>
+
+      <div className="bg-white rounded-lg p-4 shadow">
+        <h3 className="font-bold">🌧 Rainfall</h3>
+        <p>{submittedData?.rainfall} mm</p>
+      </div>
+
+    </div>
+
+  </div>
+)}
       {weatherInfo && (
   <div className="mt-6 bg-blue-100 p-4 rounded-lg shadow">
     <h2 className="text-xl font-bold text-blue-700 mb-3">
