@@ -11,11 +11,14 @@ app.use(cors());
 
 const farmerRoutes = require("./routes/farmerRoutes");
 const cropRoutes = require("./routes/cropRoutes");
+const weatherRoutes = require("./routes/weatherRoutes");
 
 app.use(express.json());
 
 app.use("/api/farmers", farmerRoutes);
 app.use("/api/crops", cropRoutes);
+app.use("/api/weather", weatherRoutes);
+
 
 const PORT = process.env.PORT || 5000;
 connectDB();

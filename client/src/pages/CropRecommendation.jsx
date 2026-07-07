@@ -1,23 +1,24 @@
 import { useState } from "react";
 import { recommendCrop } from "../services/cropService";
+import { getWeather } from "../services/weatherService";
 
 function CropRecommendation() {
   const [formData, setFormData] = useState({
     nitrogen: "",
     phosphorus: "",
     potassium: "",
-    temperature: "",
-    humidity: "",
     ph: "",
-    rainfall: "",
+    city: "",
   });
 
   const [result, setResult] = useState("");
 
   const handleChange = (e) => {
+    const { name, value } = e.target;
+
     setFormData({
       ...formData,
-      [e.target.name]: Number(e.target.value),
+      [name]: name === "city" ? value : Number(value),
     });
   };
 
@@ -25,11 +26,28 @@ function CropRecommendation() {
     e.preventDefault();
 
     try {
-      const data = await recommendCrop(formData);
+      // Get weather from backend
+      const weather = await getWeather(formData.city);
+
+      // Create crop data with weather values
+      const cropData = {
+        nitrogen: formData.nitrogen,
+        phosphorus: formData.phosphorus,
+        potassium: formData.potassium,
+        ph: formData.ph,
+        temperature: weather.main.temp,
+        humidity: weather.main.humidity,
+        rainfall: 100, // Temporary value
+      };
+
+      // Get recommendation
+      const data = await recommendCrop(cropData);
+
       setResult(data.recommendation);
+
     } catch (error) {
       console.error(error);
-      alert("Failed to get recommendation");
+      alert(error.response?.data?.message || "Unable to get recommendation");
     }
   };
 
@@ -45,6 +63,7 @@ function CropRecommendation() {
           type="number"
           name="nitrogen"
           placeholder="Nitrogen"
+          value={formData.nitrogen}
           onChange={handleChange}
           className="w-full border p-3 rounded"
           required
@@ -54,6 +73,7 @@ function CropRecommendation() {
           type="number"
           name="phosphorus"
           placeholder="Phosphorus"
+          value={formData.phosphorus}
           onChange={handleChange}
           className="w-full border p-3 rounded"
           required
@@ -63,24 +83,7 @@ function CropRecommendation() {
           type="number"
           name="potassium"
           placeholder="Potassium"
-          onChange={handleChange}
-          className="w-full border p-3 rounded"
-          required
-        />
-
-        <input
-          type="number"
-          name="temperature"
-          placeholder="Temperature"
-          onChange={handleChange}
-          className="w-full border p-3 rounded"
-          required
-        />
-
-        <input
-          type="number"
-          name="humidity"
-          placeholder="Humidity"
+          value={formData.potassium}
           onChange={handleChange}
           className="w-full border p-3 rounded"
           required
@@ -91,15 +94,17 @@ function CropRecommendation() {
           step="0.1"
           name="ph"
           placeholder="Soil pH"
+          value={formData.ph}
           onChange={handleChange}
           className="w-full border p-3 rounded"
           required
         />
 
         <input
-          type="number"
-          name="rainfall"
-          placeholder="Rainfall"
+          type="text"
+          name="city"
+          placeholder="Enter City"
+          value={formData.city}
           onChange={handleChange}
           className="w-full border p-3 rounded"
           required
@@ -107,7 +112,7 @@ function CropRecommendation() {
 
         <button
           type="submit"
-          className="w-full bg-green-700 text-white py-3 rounded hover:bg-green-800"
+          className="w-full bg-green-700 text-white py-3 rounded hover:bg-green-800 transition"
         >
           Recommend Crop
         </button>
@@ -117,10 +122,12 @@ function CropRecommendation() {
       {result && (
         <div className="mt-6 bg-green-100 p-4 rounded text-center">
           <h2 className="text-xl font-bold text-green-700">
-            Recommended Crop
+            🌱 Recommended Crop
           </h2>
 
-          <p className="text-2xl mt-2">{result}</p>
+          <p className="text-2xl font-bold mt-2">
+            {result}
+          </p>
         </div>
       )}
     </div>
