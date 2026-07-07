@@ -12,7 +12,10 @@ function CropRecommendation() {
   });
 
   const [result, setResult] = useState("");
+  const [loading, setLoading] = useState(false);
+  const [weatherInfo, setWeatherInfo] = useState(null);
 
+  // Handle Input Change
   const handleChange = (e) => {
     const { name, value } = e.target;
 
@@ -22,14 +25,20 @@ function CropRecommendation() {
     });
   };
 
+  // Handle Form Submit
   const handleSubmit = async (e) => {
     e.preventDefault();
 
-    try {
-      // Get weather from backend
-      const weather = await getWeather(formData.city);
+    setLoading(true);
+    setResult("");
+    setWeatherInfo(null);
 
-      // Create crop data with weather values
+    try {
+      // Get weather data
+      const weather = await getWeather(formData.city);
+      setWeatherInfo(weather);
+
+      // Prepare crop data
       const cropData = {
         nitrogen: formData.nitrogen,
         phosphorus: formData.phosphorus,
@@ -40,14 +49,24 @@ function CropRecommendation() {
         rainfall: 100, // Temporary value
       };
 
-      // Get recommendation
+      // Get crop recommendation
       const data = await recommendCrop(cropData);
 
       setResult(data.recommendation);
 
+      setFormData({
+      nitrogen: "",
+      phosphorus: "",
+      potassium: "",
+      ph: "",
+      city: "",
+    });
     } catch (error) {
       console.error(error);
       alert(error.response?.data?.message || "Unable to get recommendation");
+    } finally {
+      // Always stop loading
+      setLoading(false);
     }
   };
 
@@ -112,24 +131,54 @@ function CropRecommendation() {
 
         <button
           type="submit"
-          className="w-full bg-green-700 text-white py-3 rounded hover:bg-green-800 transition"
+          disabled={loading}
+          className="w-full bg-green-700 text-white py-3 rounded hover:bg-green-800 transition disabled:bg-gray-400 disabled:cursor-not-allowed"
         >
-          Recommend Crop
+          {loading ? "Loading..." : "Recommend Crop"}
         </button>
 
       </form>
 
       {result && (
-        <div className="mt-6 bg-green-100 p-4 rounded text-center">
+        <div className="mt-6 bg-green-100 p-4 rounded-lg text-center shadow">
           <h2 className="text-xl font-bold text-green-700">
             🌱 Recommended Crop
           </h2>
 
-          <p className="text-2xl font-bold mt-2">
+          <p className="text-2xl font-bold mt-3 text-green-800">
             {result}
           </p>
         </div>
       )}
+      {weatherInfo && (
+  <div className="mt-6 bg-blue-100 p-4 rounded-lg shadow">
+    <h2 className="text-xl font-bold text-blue-700 mb-3">
+      🌤 Weather Information
+    </h2>
+
+    <div className="grid grid-cols-2 gap-4">
+      <div>
+        <p className="font-semibold">📍 City</p>
+        <p>{weatherInfo.name}</p>
+      </div>
+
+      <div>
+        <p className="font-semibold">🌡 Temperature</p>
+        <p>{weatherInfo.main.temp} °C</p>
+      </div>
+
+      <div>
+        <p className="font-semibold">💧 Humidity</p>
+        <p>{weatherInfo.main.humidity}%</p>
+      </div>
+
+      <div>
+        <p className="font-semibold">🌥 Condition</p>
+        <p>{weatherInfo.weather[0].main}</p>
+      </div>
+    </div>
+  </div>
+)}
     </div>
   );
 }
