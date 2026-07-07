@@ -5,14 +5,17 @@ const express = require("express");
 const cors = require("cors");
 
 
+
 const app = express();
 app.use(cors());
 
 const farmerRoutes = require("./routes/farmerRoutes");
+const cropRoutes = require("./routes/cropRoutes");
 
 app.use(express.json());
 
 app.use("/api/farmers", farmerRoutes);
+app.use("/api/crops", cropRoutes);
 
 const PORT = process.env.PORT || 5000;
 connectDB();

@@ -1,114 +1,128 @@
 import { useState } from "react";
+import { recommendCrop } from "../services/cropService";
 
 function CropRecommendation() {
-  const [soil, setSoil] = useState("");
-  const [temperature, setTemperature] = useState("");
-  const [rainfall, setRainfall] = useState("");
+  const [formData, setFormData] = useState({
+    nitrogen: "",
+    phosphorus: "",
+    potassium: "",
+    temperature: "",
+    humidity: "",
+    ph: "",
+    rainfall: "",
+  });
+
   const [result, setResult] = useState("");
-  const recommendCrop = () => {
-  if (!soil || !temperature || !rainfall) {
-    alert("Please fill all fields.");
-    return;
-  }
 
-  let crop;
+  const handleChange = (e) => {
+    setFormData({
+      ...formData,
+      [e.target.name]: Number(e.target.value),
+    });
+  };
 
-  if (soil === "Loamy" && Number(temperature) >= 20 && Number(rainfall) >= 100) {
-    crop = "🌾 Wheat";
-  } else if (soil === "Clay" && Number(temperature) >= 25 && Number(rainfall) >= 150) {
-    crop = "🌾 Rice";
-  } else if (soil === "Sandy") {
-    crop = "🥜 Groundnut";
-  } else if (soil === "Black Soil") {
-    crop = "🌱 Cotton";
-  } else {
-    crop = "🌽 Maize";
-  }
+  const handleSubmit = async (e) => {
+    e.preventDefault();
 
-  setResult(crop);
-};
+    try {
+      const data = await recommendCrop(formData);
+      setResult(data.recommendation);
+    } catch (error) {
+      console.error(error);
+      alert("Failed to get recommendation");
+    }
+  };
 
   return (
-    <div className="min-h-screen bg-green-50 flex justify-center items-center p-6">
+    <div className="max-w-xl mx-auto mt-10 p-6 shadow-lg rounded-lg bg-white">
+      <h1 className="text-3xl font-bold text-green-700 mb-6 text-center">
+        🌾 Crop Recommendation
+      </h1>
 
-      <div className="bg-white shadow-xl rounded-xl p-8 w-full max-w-lg">
+      <form onSubmit={handleSubmit} className="space-y-4">
 
-        <h1 className="text-3xl font-bold text-green-700 text-center mb-8">
-          🌱 Crop Recommendation
-        </h1>
+        <input
+          type="number"
+          name="nitrogen"
+          placeholder="Nitrogen"
+          onChange={handleChange}
+          className="w-full border p-3 rounded"
+          required
+        />
 
-        <div className="space-y-5">
+        <input
+          type="number"
+          name="phosphorus"
+          placeholder="Phosphorus"
+          onChange={handleChange}
+          className="w-full border p-3 rounded"
+          required
+        />
 
-          <div>
-            <label className="font-semibold">
-              Soil Type
-            </label>
+        <input
+          type="number"
+          name="potassium"
+          placeholder="Potassium"
+          onChange={handleChange}
+          className="w-full border p-3 rounded"
+          required
+        />
 
-            <select
-              value={soil}
-              onChange={(e) => setSoil(e.target.value)}
-              className="w-full border rounded-lg p-3 mt-2"
-            >
-              <option value="">Select Soil</option>
-              <option>Sandy</option>
-              <option>Clay</option>
-              <option>Loamy</option>
-              <option>Black Soil</option>
-            </select>
-          </div>
+        <input
+          type="number"
+          name="temperature"
+          placeholder="Temperature"
+          onChange={handleChange}
+          className="w-full border p-3 rounded"
+          required
+        />
 
-          <div>
-            <label className="font-semibold">
-              Temperature (°C)
-            </label>
+        <input
+          type="number"
+          name="humidity"
+          placeholder="Humidity"
+          onChange={handleChange}
+          className="w-full border p-3 rounded"
+          required
+        />
 
-            <input
-              type="number"
-              value={temperature}
-              onChange={(e) => setTemperature(e.target.value)}
-              placeholder="Enter Temperature"
-              className="w-full border rounded-lg p-3 mt-2"
-            />
-          </div>
+        <input
+          type="number"
+          step="0.1"
+          name="ph"
+          placeholder="Soil pH"
+          onChange={handleChange}
+          className="w-full border p-3 rounded"
+          required
+        />
 
-          <div>
-            <label className="font-semibold">
-              Rainfall (mm)
-            </label>
+        <input
+          type="number"
+          name="rainfall"
+          placeholder="Rainfall"
+          onChange={handleChange}
+          className="w-full border p-3 rounded"
+          required
+        />
 
-            <input
-              type="number"
-              value={rainfall}
-              onChange={(e) => setRainfall(e.target.value)}
-              placeholder="Enter Rainfall"
-              className="w-full border rounded-lg p-3 mt-2"
-            />
-          </div>
-
-          <button
-          onClick={recommendCrop}
-          className="w-full bg-green-700 text-white py-3 rounded-lg hover:bg-green-800">
+        <button
+          type="submit"
+          className="w-full bg-green-700 text-white py-3 rounded hover:bg-green-800"
+        >
           Recommend Crop
-          </button>
-          {result && (
+        </button>
 
-         <div className="mt-8 text-center">
+      </form>
 
-         <h2 className="text-2xl font-bold text-green-700">
-         Recommended Crop
-         </h2>
+      {result && (
+        <div className="mt-6 bg-green-100 p-4 rounded text-center">
+          <h2 className="text-xl font-bold text-green-700">
+            Recommended Crop
+          </h2>
 
-         <p className="text-4xl mt-4">
-         {result}
-         </p>
-
-         </div>
-    )}
-
+          <p className="text-2xl mt-2">{result}</p>
         </div>
-
-      </div>
-
+      )}
     </div>
   );
 }
