@@ -2,6 +2,7 @@ import { useState } from "react";
 import { recommendCrop } from "../services/cropService";
 import { getWeather } from "../services/weatherService";
 import jsPDF from "jspdf";
+import { saveRecommendation } from "../services/recommendationService";
 
 function CropRecommendation() {
   const [formData, setFormData] = useState({
@@ -86,6 +87,19 @@ const cropTips = {
       const data = await recommendCrop(cropData);
       console.log(data.recommendation);
       setResult(data.recommendation);
+      
+      await saveRecommendation({
+      crop: data.recommendation,
+      city: weather.name,
+      temperature: cropData.temperature,
+      humidity: cropData.humidity,
+      rainfall: cropData.rainfall,
+      nitrogen: cropData.nitrogen,
+      phosphorus: cropData.phosphorus,
+      potassium: cropData.potassium,
+      ph: cropData.ph,
+      });
+
       setConfidence("95%");
       if (weather.main.temp < 25) {
       setRiskLevel("🟢 Low");
@@ -126,8 +140,8 @@ const cropTips = {
   });
 };
 
-const cropName = result
-  .replace(/[^\w\s]/g, "") // Remove emojis
+const cropName = (result || "")
+  .replace(/[^\w\s]/g, "")
   .trim()
   .toLowerCase();
 

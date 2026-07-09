@@ -12,12 +12,14 @@ app.use(cors());
 const farmerRoutes = require("./routes/farmerRoutes");
 const cropRoutes = require("./routes/cropRoutes");
 const weatherRoutes = require("./routes/weatherRoutes");
+const recommendationRoutes = require("./routes/recommendationRoutes");
 
 app.use(express.json());
 
 app.use("/api/farmers", farmerRoutes);
 app.use("/api/crops", cropRoutes);
 app.use("/api/weather", weatherRoutes);
+app.use("/api/recommendations", recommendationRoutes);
 
 
 const PORT = process.env.PORT || 5000;
