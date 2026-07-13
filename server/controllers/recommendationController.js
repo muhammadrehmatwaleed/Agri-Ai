@@ -35,6 +35,43 @@ const saveRecommendation = async (req, res) => {
   }
 };
 
+// Delete Recommendation
+const deleteRecommendation = async (req, res) => {
+  try {
+    const recommendation = await Recommendation.findById(req.params.id);
+
+    if (!recommendation) {
+      return res.status(404).json({
+        success: false,
+        message: "Recommendation not found",
+      });
+    }
+
+    // Make sure the logged-in farmer owns this recommendation
+    if (recommendation.farmer.toString() !== req.user.id) {
+      return res.status(403).json({
+        success: false,
+        message: "Not authorized",
+      });
+    }
+
+    await Recommendation.findByIdAndDelete(req.params.id);
+
+    res.status(200).json({
+      success: true,
+      message: "Recommendation deleted successfully",
+    });
+
+  } catch (error) {
+    console.error(error);
+
+    res.status(500).json({
+      success: false,
+      message: error.message,
+    });
+  }
+};
+
 // Get Logged-in Farmer Recommendations
 const getRecommendations = async (req, res) => {
   try {
@@ -58,6 +95,7 @@ const getRecommendations = async (req, res) => {
 
 module.exports = {
   saveRecommendation,
+  deleteRecommendation,
   getRecommendations,
 };
 

@@ -16,6 +16,21 @@ export const saveRecommendation = async (recommendationData) => {
   return response.data;
 };
 
+export const deleteRecommendation = async (id) => {
+  const token = localStorage.getItem("token");
+
+  const response = await axios.delete(
+    `http://localhost:5000/api/recommendations/${id}`,
+    {
+      headers: {
+        Authorization: `Bearer ${token}`,
+      },
+    }
+  );
+
+  return response.data;
+};
+
 export const getRecommendations = async () => {
   const token = localStorage.getItem("token");
 

@@ -1,4 +1,5 @@
 import { useState } from "react";
+import { useNavigate } from "react-router-dom";
 import { recommendCrop } from "../services/cropService";
 import { getWeather } from "../services/weatherService";
 import jsPDF from "jspdf";
@@ -20,6 +21,7 @@ function CropRecommendation() {
   const [recommendationTime, setRecommendationTime] = useState("");
   const [confidence, setConfidence] = useState("");
   const [riskLevel, setRiskLevel] = useState("");
+  const navigate = useNavigate();
 
   const cropImages = {
   rice: "https://cdn-icons-png.flaticon.com/512/2909/2909765.png",
@@ -391,6 +393,14 @@ const cropName = (result || "")
     className="bg-blue-600 text-white px-6 py-3 rounded-lg hover:bg-blue-700 transition"
   >
     📄 Download Recommendation PDF
+  </button>
+</div>
+<div className="mt-4 text-center">
+  <button
+    onClick={() => navigate("/history")}
+    className="bg-green-700 text-white px-6 py-3 rounded-lg hover:bg-green-800 transition"
+  >
+    📜 View Recommendation History
   </button>
 </div>
       

@@ -13,6 +13,7 @@ import CropRecommendation from "./pages/CropRecommendation";
 import Weather from "./pages/Weather";
 import ProtectedRoute from "./components/ProtectedRoute";
 import PublicRoute from "./components/PublicRoute";
+import RecommendationHistory from "./pages/RecommendationHistory";
 
 function App() {
   return (
@@ -31,8 +32,15 @@ function App() {
     <Route path="/farmer" element={<ProtectedRoute><Farmer /></ProtectedRoute>}/>
     <Route path="/crop" element={<ProtectedRoute><CropRecommendation /></ProtectedRoute>}/>
     <Route path="/weather" element={<ProtectedRoute><Weather /></ProtectedRoute>}/>
-
-  </Routes>
+    <Route
+    path="/history"
+    element={
+      <ProtectedRoute>
+        <RecommendationHistory />
+      </ProtectedRoute>
+    }
+  />
+</Routes>
 </BrowserRouter>
   );
 }
