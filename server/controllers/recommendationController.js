@@ -72,6 +72,80 @@ const deleteRecommendation = async (req, res) => {
   }
 };
 
+// Dashboard Statistics
+const getDashboardStats = async (req, res) => {
+  try {
+    const recommendations = await Recommendation.find({
+      farmer: req.user.id,
+    });
+
+    const totalRecommendations = recommendations.length;
+
+    const averageTemperature =
+      totalRecommendations > 0
+        ? (
+            recommendations.reduce(
+              (sum, item) => sum + item.temperature,
+              0
+            ) / totalRecommendations
+          ).toFixed(1)
+        : 0;
+
+    const averageHumidity =
+      totalRecommendations > 0
+        ? (
+            recommendations.reduce(
+              (sum, item) => sum + item.humidity,
+              0
+            ) / totalRecommendations
+          ).toFixed(1)
+        : 0;
+
+    const cropCount = {};
+
+    recommendations.forEach((item) => {
+      cropCount[item.crop] = (cropCount[item.crop] || 0) + 1;
+    });
+
+    let mostRecommendedCrop = "--";
+
+    if (Object.keys(cropCount).length > 0) {
+      mostRecommendedCrop = Object.keys(cropCount).reduce((a, b) =>
+        cropCount[a] > cropCount[b] ? a : b
+      );
+    }
+
+    const recentRecommendations = await Recommendation.find({
+    farmer: req.user.id,
+   })
+  .sort({ createdAt: -1 })
+  .limit(5);
+
+  const allRecommendations = await Recommendation.find({
+  farmer: req.user.id,
+  });
+
+    res.status(200).json({
+    success: true,
+    totalRecommendations,
+    averageTemperature,
+    averageHumidity,
+    mostRecommendedCrop,
+
+    recentRecommendations,
+    allRecommendations,
+  });
+
+  } catch (error) {
+    console.error(error);
+
+    res.status(500).json({
+      success: false,
+      message: error.message,
+    });
+  }
+};
+
 // Get Logged-in Farmer Recommendations
 const getRecommendations = async (req, res) => {
   try {
@@ -97,5 +171,6 @@ module.exports = {
   saveRecommendation,
   deleteRecommendation,
   getRecommendations,
+  getDashboardStats,
 };
 
