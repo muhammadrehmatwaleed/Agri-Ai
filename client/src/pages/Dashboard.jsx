@@ -1,6 +1,7 @@
 import { useEffect, useState } from "react";
-import { Link } from "react-router-dom";
+import { Link, useNavigate } from "react-router-dom";
 import { getDashboardStats } from "../services/dashboardService";
+import { getWeather } from "../services/weatherService";
 import {
   Chart as ChartJS,
   CategoryScale,
@@ -31,9 +32,14 @@ function Dashboard() {
   });
 
   const [loading, setLoading] = useState(true);
+  const [currentDate, setCurrentDate] = useState(new Date());
   const [farmerName, setFarmerName] = useState("Farmer");
   const [recentRecommendations, setRecentRecommendations] = useState([]);
   const [allRecommendations, setAllRecommendations] = useState([]);
+  const navigate = useNavigate();
+  const [weather, setWeather] = useState(null);
+  const [weatherLoading, setWeatherLoading] = useState(false);
+  const [lastUpdated, setLastUpdated] = useState(new Date());
 
   useEffect(() => {
     const fetchStats = async () => {
@@ -46,6 +52,8 @@ function Dashboard() {
           averageHumidity: data.averageHumidity,
           mostRecommendedCrop: data.mostRecommendedCrop,
         });
+
+        setLastUpdated(new Date());
 
         if (data.recentRecommendations) {
           setRecentRecommendations(data.recentRecommendations);
@@ -61,6 +69,18 @@ function Dashboard() {
         setFarmerName(farmer.name);
        }
 
+        try {
+          setWeatherLoading(true);
+
+          const weatherData = await getWeather("Faisalabad");
+
+          setWeather(weatherData);
+
+        } catch (error) {
+          console.error(error);
+        } finally {
+          setWeatherLoading(false);
+        }
 
       } catch (error) {
         console.error(error);
@@ -71,6 +91,11 @@ function Dashboard() {
     };
 
     fetchStats();
+    const timer = setInterval(() => {
+      setCurrentDate(new Date());
+    }, 1000);
+    
+    return () => clearInterval(timer);
   }, []);
 
 
@@ -78,6 +103,8 @@ function Dashboard() {
   acc[item.crop] = (acc[item.crop] || 0) + 1;
   return acc;
 }, {});
+
+  const cropTable = Object.entries(cropCounts);
 
 const chartData = {
   labels: Object.keys(cropCounts),
@@ -138,28 +165,103 @@ const chartOptions = {
     );
   }
 
+
+  const handleLogout = () => {
+  const confirmLogout = window.confirm(
+    "Are you sure you want to logout?"
+  );
+
+  if (!confirmLogout) return;
+
+  localStorage.removeItem("token");
+  localStorage.removeItem("farmer");
+
+  navigate("/login");
+};
+
   return (
     <div className="max-w-7xl mx-auto p-6">
 
-      <div className="bg-linear-to-r from-green-600 to-green-500 text-white p-6 rounded-2xl shadow-lg mb-8">
-        
 
+      <div className="flex flex-wrap justify-between items-center mb-6">
+
+  <h1 className="text-3xl font-bold text-green-700">
+    🌾 AgriAI Dashboard
+  </h1>
+
+  <div className="flex flex-wrap gap-3">
+
+    <Link
+      to="/history"
+      className="bg-blue-600 text-white px-4 py-2 rounded-lg hover:bg-blue-700 transition"
+    >
+      📜 History
+    </Link>
+
+    <Link
+      to="/crop"
+      className="bg-green-600 text-white px-4 py-2 rounded-lg hover:bg-green-700 transition"
+    >
+      🌱 New Recommendation
+    </Link>
+
+    <Link
+      to="/weather"
+      className="bg-cyan-600 text-white px-4 py-2 rounded-lg hover:bg-cyan-700 transition"
+    >
+      🌤 Weather
+    </Link>
+
+  </div>
+
+</div>
+
+
+
+    <div className="bg-linear-to-r from-green-600 to-green-500 text-white p-6 rounded-2xl shadow-lg mb-8">
+
+    <div className="flex justify-between items-start">
+
+    <div>
       <h1 className="text-4xl font-bold">
-      👋 Welcome, {farmerName}
+        👋 Welcome, {farmerName}
       </h1>
 
       <p className="mt-2 text-green-100">
-      Here is your AgriAI farming dashboard with your latest crop recommendation statistics.
+        Here is your AgriAI farming dashboard with your latest crop recommendation statistics.
       </p>
+    </div>
 
+    <p className="mt-3 text-green-100 font-medium">
+      � {currentDate.toLocaleDateString()} | 🕒 {currentDate.toLocaleTimeString()}
+      <div className="mb-6 text-sm text-gray-600">
+       🔄 Last Updated: {lastUpdated.toLocaleString()}
       </div>
+    </p>
 
-      <div className="bg-green-50 border border-green-200 rounded-2xl p-6 mb-8">
-  <h2 className="text-2xl font-bold text-green-700 mb-4">
+
+
+    
+
+    <button
+      onClick={handleLogout}
+      className="bg-red-600 hover:bg-red-700 px-5 py-2 rounded-lg font-semibold transition"
+    >
+      🚪 Logout
+    </button>
+
+  </div>
+
+</div>
+
+      
+
+    <div className="bg-green-50 border border-green-200 rounded-2xl p-6 mb-8">
+    <h2 className="text-2xl font-bold text-green-700 mb-4">
     📋 Dashboard Summary
-  </h2>
+    </h2>
 
-  <div className="grid grid-cols-1 md:grid-cols-2 gap-4 text-gray-700">
+    <div className="grid grid-cols-1 md:grid-cols-2 gap-4 text-gray-700">
 
     <p>
       🌾 <strong>Total Crop Recommendations:</strong>{" "}
@@ -184,6 +286,109 @@ const chartOptions = {
   </div>
 </div>
 
+{/* Quick Actions */}
+
+<div className="mb-8">
+
+  <h2 className="text-2xl font-bold text-green-700 mb-5">
+    ⚡ Quick Actions
+  </h2>
+
+  <div className="grid grid-cols-2 md:grid-cols-4 gap-4">
+
+    <Link
+      to="/crop"
+      className="bg-green-600 text-white rounded-xl p-5 text-center hover:bg-green-700 transition shadow"
+    >
+      <div className="text-3xl mb-2">🌱</div>
+      <p className="font-semibold">
+        New Recommendation
+      </p>
+    </Link>
+
+    <Link
+      to="/weather"
+      className="bg-blue-600 text-white rounded-xl p-5 text-center hover:bg-blue-700 transition shadow"
+    >
+      <div className="text-3xl mb-2">🌦</div>
+      <p className="font-semibold">
+        Weather
+      </p>
+    </Link>
+
+    <Link
+      to="/history"
+      className="bg-yellow-500 text-white rounded-xl p-5 text-center hover:bg-yellow-600 transition shadow"
+    >
+      <div className="text-3xl mb-2">📜</div>
+      <p className="font-semibold">
+        History
+      </p>
+    </Link>
+
+    <Link
+      to="/farmer"
+      className="bg-purple-600 text-white rounded-xl p-5 text-center hover:bg-purple-700 transition shadow"
+    >
+      <div className="text-3xl mb-2">👤</div>
+      <p className="font-semibold">
+        Profile
+      </p>
+    </Link>
+
+  </div>
+
+</div>
+
+
+
+<div className="bg-white shadow-lg rounded-2xl p-6 mb-8">
+
+  <h2 className="text-2xl font-bold text-green-700 mb-5">
+    🌤 Current Weather
+  </h2>
+
+  {weatherLoading ? (
+
+    <p>Loading weather...</p>
+
+  ) : weather ? (
+
+    <div className="grid grid-cols-2 md:grid-cols-4 gap-4">
+
+      <div>
+        <p className="text-gray-500">City</p>
+        <h3 className="font-bold">{weather.city}</h3>
+      </div>
+
+      <div>
+        <p className="text-gray-500">Temperature</p>
+        <h3 className="font-bold">{weather.temperature} °C</h3>
+      </div>
+
+      <div>
+        <p className="text-gray-500">Humidity</p>
+        <h3 className="font-bold">{weather.humidity}%</h3>
+      </div>
+
+      <div>
+        <p className="text-gray-500">Condition</p>
+        <h3 className="font-bold">{weather.condition}</h3>
+      </div>
+
+    </div>
+
+  ) : (
+
+    <p>No weather data available.</p>
+
+  )}
+
+</div>
+
+  
+  
+  
   <div className="grid grid-cols-1 md:grid-cols-3 gap-4 mb-8">
 
   <Link
@@ -337,11 +542,74 @@ const chartOptions = {
     data={chartData}
     options={chartOptions}
   />
+
+  
+  </div>
+</div>
+
+<div className="mt-8">
+
+  <h2 className="text-2xl font-bold text-green-700 mb-4">
+    🌾 Crop Distribution
+  </h2>
+
+  <div className="overflow-x-auto">
+
+    <table className="w-full border border-green-200 rounded-lg overflow-hidden">
+
+      <thead className="bg-green-600 text-white">
+
+        <tr>
+          <th className="p-3 text-left">Crop</th>
+          <th className="p-3 text-center">Recommendations</th>
+        </tr>
+
+      </thead>
+
+      <tbody>
+
+        {cropTable.map(([crop, count]) => (
+
+          <tr
+            key={crop}
+            className="border-b hover:bg-green-50"
+          >
+
+            <td className="p-3">{crop}</td>
+
+            <td className="p-3 text-center font-bold">
+              {count}
+            </td>
+
+          </tr>
+
+        ))}
+
+      </tbody>
+
+    </table>
+
   </div>
 
 </div>
 
       </div>
+
+
+<div className="mt-10 text-center border-t pt-6 text-gray-500">
+  <p className="font-semibold">
+    🌾 AgriAI Smart Farming System
+  </p>
+
+  <p className="text-sm mt-1">
+    Final Year Project | Developed using MERN Stack
+  </p>
+
+  <p className="text-sm">
+    © {new Date().getFullYear()} AgriAI. All Rights Reserved.
+  </p>
+</div>
+
 
     </div>
   );
