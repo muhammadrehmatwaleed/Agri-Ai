@@ -4,22 +4,32 @@ import { getRecommendations, deleteRecommendation } from "../services/recommenda
 function RecommendationHistory() {
   const [recommendations, setRecommendations] = useState([]);
   const [loading, setLoading] = useState(true);
+  const [search, setSearch] = useState("");
+  const [sortOrder, setSortOrder] = useState("newest");
 
-  useEffect(() => {
-    const fetchRecommendations = async () => {
-      try {
-        const data = await getRecommendations();
-        setRecommendations(data.recommendations);
-      } catch (error) {
-        console.error(error);
-        alert("Failed to load recommendation history");
-      } finally {
-        setLoading(false);
-      }
-    };
+  const [currentPage, setCurrentPage] = useState(1);
+  const recommendationsPerPage = 5;
 
-    fetchRecommendations();
-  }, []);
+  const fetchRecommendations = async () => {
+  try {
+    setLoading(true);
+
+    const data = await getRecommendations();
+    setRecommendations(data.recommendations);
+
+  } catch (error) {
+    console.error(error);
+    alert("Failed to load recommendation history");
+  } finally {
+    setLoading(false);
+  }
+};
+
+useEffect(() => {
+  fetchRecommendations();
+}, []);
+
+  
 
   if (loading) {
     return (
@@ -50,11 +60,85 @@ function RecommendationHistory() {
   }
 };
 
+const filteredRecommendations = recommendations
+  .filter((item) =>
+    item.crop.toLowerCase().includes(search.toLowerCase()) ||
+    item.city.toLowerCase().includes(search.toLowerCase())
+  )
+  .sort((a, b) => {
+    if (sortOrder === "newest") {
+      return new Date(b.createdAt) - new Date(a.createdAt);
+    }
+
+    return new Date(a.createdAt) - new Date(b.createdAt);
+  });
+
+
+  const indexOfLastRecommendation = currentPage * recommendationsPerPage;
+  const indexOfFirstRecommendation =
+  indexOfLastRecommendation - recommendationsPerPage;
+
+  const currentRecommendations = filteredRecommendations.slice(
+  indexOfFirstRecommendation,
+  indexOfLastRecommendation
+  );
+
+const totalPages = Math.ceil(
+  filteredRecommendations.length / recommendationsPerPage
+);  
+
   return (
     <div className="max-w-5xl mx-auto p-6">
-      <h1 className="text-3xl font-bold text-green-700 mb-6">
-        📜 Recommendation History
-      </h1>
+      <div className="flex justify-between items-center mb-6">
+
+  <h1 className="text-3xl font-bold text-green-700">
+    📜 Recommendation History
+  </h1>
+
+  <div className="flex gap-3">
+
+    <span className="bg-green-100 text-green-700 px-4 py-2 rounded-full font-semibold">
+      Total: {filteredRecommendations.length}
+    </span>
+
+    <button
+      onClick={fetchRecommendations}
+      className="bg-green-600 text-white px-4 py-2 rounded-lg hover:bg-green-700 transition"
+    >
+      🔄 Refresh
+    </button>
+
+  </div>
+
+</div>
+
+   <div className="mb-6 flex gap-3">
+
+  <input
+    type="text"
+    placeholder="🔍 Search by crop or city..."
+    value={search}
+    onChange={(e) => setSearch(e.target.value)}
+    className="flex-1 border border-gray-300 rounded-lg p-3 focus:outline-none focus:ring-2 focus:ring-green-500"
+  />
+
+  <select
+    value={sortOrder}
+    onChange={(e) => setSortOrder(e.target.value)}
+    className="border border-gray-300 rounded-lg px-4 py-3 focus:outline-none focus:ring-2 focus:ring-green-500"
+  >
+    <option value="newest">🆕 Newest</option>
+    <option value="oldest">📜 Oldest</option>
+  </select>
+
+  <button
+    onClick={() => setSearch("")}
+    className="bg-gray-600 text-white px-5 rounded-lg hover:bg-gray-700 transition"
+  >
+    ❌ Clear
+  </button>
+
+</div>
 
       {recommendations.length === 0 ? (
         <div className="bg-yellow-100 p-4 rounded">
@@ -62,7 +146,12 @@ function RecommendationHistory() {
         </div>
       ) : (
         <div className="grid gap-4">
-          {recommendations.map((item) => (
+  {filteredRecommendations.length === 0 ? (
+    <div className="bg-yellow-100 border border-yellow-300 text-yellow-800 p-4 rounded-lg text-center">
+      🔍 No recommendations found for "<strong>{search}</strong>"
+    </div>
+  ) : (
+    currentRecommendations.map((item) => (
             <div
   key={item._id}
   className="bg-white border border-green-200 rounded-xl shadow-md p-6 hover:shadow-xl transition"
@@ -110,9 +199,52 @@ function RecommendationHistory() {
   </button>
 </div>
 </div>
-          ))}
+          ))
+        )}
+</div>
+)}
+
+      {/* Pagination */}
+      {totalPages > 1 && (
+        <div className="flex justify-center items-center gap-4 mt-8">
+
+          <button
+            onClick={() => setCurrentPage((prev) => Math.max(prev - 1, 1))}
+            disabled={currentPage === 1}
+            className="bg-gray-600 text-white px-4 py-2 rounded disabled:bg-gray-300"
+          >
+            ⬅ Previous
+          </button>
+
+  <div className="flex gap-2">
+  {[...Array(totalPages)].map((_, index) => (
+    <button
+      key={index}
+      onClick={() => setCurrentPage(index + 1)}
+      className={`px-4 py-2 rounded-lg transition ${
+        currentPage === index + 1
+          ? "bg-green-600 text-white"
+          : "bg-gray-200 hover:bg-gray-300"
+      }`}
+    >
+      {index + 1}
+    </button>
+  ))}
+</div>
+
+          <button
+            onClick={() =>
+              setCurrentPage((prev) => Math.min(prev + 1, totalPages))
+            }
+            disabled={currentPage === totalPages}
+            className="bg-green-600 text-white px-4 py-2 rounded disabled:bg-gray-300"
+          >
+            Next ➡
+          </button>
+
         </div>
       )}
+
     </div>
   );
 }
