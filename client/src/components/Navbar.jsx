@@ -16,9 +16,18 @@ function Navbar() {
   const navigate = useNavigate();
 
   const handleLogout = () => {
-    logout();
-    navigate("/login");
-  };
+  const confirmLogout = window.confirm(
+    "Are you sure you want to logout?"
+  );
+
+  if (!confirmLogout) return;
+
+  logout();
+
+  alert("✅ Logged out successfully.");
+
+  navigate("/");
+};
 
   return (
     <nav className="sticky top-0 z-50 bg-white shadow-lg">
@@ -33,23 +42,108 @@ function Navbar() {
         </div>
 
         {/* Desktop Menu */}
-        <ul className="hidden md:flex gap-8 font-semibold">
-          <li>
-            <NavLink to="/">Home</NavLink>
-          </li>
+  <ul className="hidden md:flex gap-8 font-semibold">
 
-          <li>
-            <NavLink to="/services">Services</NavLink>
-          </li>
+  <li>
+    <NavLink
+  to="/"
+  className={({ isActive }) =>
+    isActive
+      ? "text-green-700 font-bold border-b-2 border-green-700"
+      : "hover:text-green-700"
+  }
+>
+  Home
+</NavLink>
+  </li>
 
-          <li>
-            <NavLink to="/about">About</NavLink>
-          </li>
+  <li>
+    <NavLink
+      to="/crop"
+      className={({ isActive }) =>
+        isActive
+          ? "text-green-700 font-bold border-b-2 border-green-700"
+          : "hover:text-green-700"
+      }
+    >
+      Crop AI
+    </NavLink>
+  </li>
 
-          <li>
-            <NavLink to="/contact">Contact</NavLink>
-          </li>
-        </ul>
+
+  <li>
+  <NavLink
+    to="/disease"
+    className={({ isActive }) =>
+      isActive
+        ? "text-green-700 font-bold border-b-2 border-green-700"
+        : "hover:text-green-700"
+    }
+  >
+    Disease AI
+  </NavLink>
+</li>
+
+  {loggedIn && (
+    <>
+      <li>
+        <NavLink
+      to="/dashboard"
+      className={({ isActive }) =>
+        isActive
+          ? "text-green-700 font-bold border-b-2 border-green-700"
+          : "hover:text-green-700"
+      }
+    >
+      Dashboard
+    </NavLink>
+      </li>
+
+
+      
+
+      <li>
+        <NavLink
+          to="/history"
+          className={({ isActive }) =>
+            isActive
+              ? "text-green-700 font-bold border-b-2 border-green-700"
+              : "hover:text-green-700"
+          }
+        >
+          History
+        </NavLink>
+      </li>
+    </>
+  )}
+
+  <li>
+    <NavLink
+      to="/about"
+      className={({ isActive }) =>
+        isActive
+          ? "text-green-700 font-bold border-b-2 border-green-700"
+          : "hover:text-green-700"
+      }
+    >
+      About
+    </NavLink>
+  </li>
+
+  <li>
+    <NavLink
+      to="/contact"
+      className={({ isActive }) =>
+        isActive
+          ? "text-green-700 font-bold border-b-2 border-green-700"
+          : "hover:text-green-700"
+      }
+    >
+      Contact
+    </NavLink>
+  </li>
+
+</ul>
 
         {/* Right Side */}
         <div className="hidden md:flex items-center gap-5">
@@ -70,12 +164,21 @@ function Navbar() {
 
             </div>
           ) : (
+            <div className="flex gap-3">
+
             <button
-              onClick={() => navigate("/login")}
-              className="bg-green-700 text-white px-5 py-2 rounded-lg hover:bg-green-800"
-            >
-              Login
+            onClick={() => navigate("/login")}
+            className="bg-green-700 text-white px-5 py-2 rounded-lg hover:bg-green-800">
+            Login
             </button>
+
+            <button
+            onClick={() => navigate("/register")}
+            className="border border-green-700 text-green-700 px-5 py-2 rounded-lg hover:bg-green-700 hover:text-white transition">
+            Register
+           </button>
+
+        </div>
           )}
 
           <FaUserCircle className="text-3xl text-green-700 cursor-pointer" />
@@ -106,13 +209,42 @@ function Navbar() {
               Home
             </NavLink>
 
-            <NavLink
-              to="/services"
-              onClick={() => setMenuOpen(false)}
-              className="hover:text-green-700"
-            >
-              Services
-            </NavLink>
+
+           <NavLink
+  to="/crop"
+  onClick={() => setMenuOpen(false)}
+  className="hover:text-green-700"
+>
+  Crop AI
+</NavLink>
+
+<NavLink
+  to="/disease"
+  onClick={() => setMenuOpen(false)}
+  className="hover:text-green-700"
+>
+  Disease AI
+</NavLink>
+
+{loggedIn && (
+  <>
+    <NavLink
+      to="/dashboard"
+      onClick={() => setMenuOpen(false)}
+      className="hover:text-green-700"
+    >
+      Dashboard
+    </NavLink>
+
+    <NavLink
+      to="/history"
+      onClick={() => setMenuOpen(false)}
+      className="hover:text-green-700"
+    >
+      History
+    </NavLink>
+  </>
+)}
 
             <NavLink
               to="/about"
@@ -146,15 +278,29 @@ function Navbar() {
              </button>
              </>
 ) : (
-              <button
-                onClick={() => {
-                  navigate("/login");
-                  setMenuOpen(false);
-                }}
-                className="bg-green-700 text-white px-5 py-2 rounded-lg hover:bg-green-800"
-              >
-                Login
-              </button>
+              <div className="flex flex-col gap-3">
+
+  <button
+    onClick={() => {
+      navigate("/login");
+      setMenuOpen(false);
+    }}
+    className="bg-green-700 text-white px-5 py-2 rounded-lg"
+  >
+    Login
+  </button>
+
+  <button
+    onClick={() => {
+      navigate("/register");
+      setMenuOpen(false);
+    }}
+    className="border border-green-700 text-green-700 px-5 py-2 rounded-lg"
+  >
+    Register
+  </button>
+
+</div>
             )}
 
           </ul>

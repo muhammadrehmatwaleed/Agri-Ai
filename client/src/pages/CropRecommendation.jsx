@@ -37,6 +37,7 @@ function CropRecommendation() {
   const [reason, setReason] = useState("");
   const [score, setScore] = useState(0);
   const navigate = useNavigate();
+  const [fertilizer, setFertilizer] = useState(null);
 
 
   const getRecommendationQuality = () => {
@@ -132,13 +133,24 @@ const cropTips = {
 
       // Get crop recommendation
       const data = await recommendCrop(cropData);
-      console.log(data.recommendation);
+      console.log("Crop API Response:", data);
       setResult(data.recommendation);
+      setFertilizer(data.fertilizer);
       setReason(data.reason);
       setScore(data.score);
       
       await saveRecommendation({
       crop: data.recommendation,
+
+      fertilizerName: data.fertilizer.name,
+      fertilizerType: data.fertilizer.type,
+      fertilizerDosage: data.fertilizer.dosage,
+      fertilizerMethod: data.fertilizer.method,
+      fertilizerPrecaution: data.fertilizer.precaution,
+
+      score: data.score,
+      reason: data.reason,
+
       city: weather.name,
       temperature: cropData.temperature,
       humidity: cropData.humidity,
@@ -527,6 +539,7 @@ const suitabilityChartOptions = {
 
       </form>
 
+
       {result && weatherInfo && (
     <div className="mt-6 bg-linear-to-r from-green-100 to-green-50 border border-green-300 rounded-xl shadow-lg p-6">
 
@@ -704,6 +717,53 @@ const suitabilityChartOptions = {
   </p>
 
 </div>
+
+
+
+
+
+{fertilizer && (
+  <div className="mt-8 bg-green-50 border border-green-300 rounded-xl shadow-lg p-6">
+
+    <h2 className="text-2xl font-bold text-green-700 mb-4">
+      🌱 Fertilizer Recommendation
+    </h2>
+
+    <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+
+      <div className="bg-white p-4 rounded-lg shadow">
+        <h3 className="font-semibold">📦 Fertilizer</h3>
+        <p>{fertilizer.name}</p>
+      </div>
+
+      <div className="bg-white p-4 rounded-lg shadow">
+        <h3 className="font-semibold">🧪 Type</h3>
+        <p>{fertilizer.type}</p>
+      </div>
+
+      <div className="bg-white p-4 rounded-lg shadow">
+        <h3 className="font-semibold">⚖️ Dosage</h3>
+        <p>{fertilizer.dosage}</p>
+      </div>
+
+      <div className="bg-white p-4 rounded-lg shadow">
+        <h3 className="font-semibold">🌾 Application Method</h3>
+        <p>{fertilizer.method}</p>
+      </div>
+
+    </div>
+
+    <div className="mt-4 bg-yellow-100 border-l-4 border-yellow-500 p-4 rounded-lg">
+      <strong>⚠️ Precaution:</strong>
+      <p>{fertilizer.precaution}</p>
+    </div>
+
+  </div>
+)}
+
+
+
+
 
 
 

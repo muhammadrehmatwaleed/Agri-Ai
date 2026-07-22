@@ -1,4 +1,68 @@
 // Crop Recommendation Controller
+const getFertilizerRecommendation = (crop) => {
+  switch (crop) {
+    case "Rice 🌾":
+      return {
+        name: "NPK 20-20-20",
+        type: "Chemical",
+        dosage: "50 kg per acre",
+        method: "Apply in two equal splits during crop growth.",
+        precaution: "Avoid application before heavy rainfall.",
+      };
+
+    case "Wheat 🌱":
+      return {
+        name: "DAP + Urea",
+        type: "Chemical",
+        dosage: "45 kg DAP + 50 kg Urea per acre",
+        method: "DAP at sowing, Urea after first irrigation.",
+        precaution: "Do not overuse nitrogen fertilizer.",
+      };
+
+    case "Maize 🌽":
+      return {
+        name: "NPK 15-15-15",
+        type: "Chemical",
+        dosage: "60 kg per acre",
+        method: "Apply before sowing and during vegetative stage.",
+        precaution: "Keep fertilizer away from plant stems.",
+      };
+
+    case "Cotton ☁️":
+      return {
+        name: "NPK 12-24-12",
+        type: "Chemical",
+        dosage: "50 kg per acre",
+        method: "Apply before flowering stage.",
+        precaution: "Do not apply on wet leaves.",
+     };
+
+    case "Sugarcane 🍬":
+     return {
+       name: "Urea + Potash",
+       type: "Chemical",
+       dosage: "80 kg per acre",
+       method: "Apply in three equal splits.",
+       precaution: "Irrigate after fertilizer application.",
+     };
+
+    default:
+      return {
+        name: "Organic Compost",
+        type: "Organic",
+        dosage: "100 kg per acre",
+        method: "Mix thoroughly into the soil.",
+        precaution: "Ensure compost is fully decomposed.",
+      };
+  }
+};
+
+
+
+
+
+
+
 
 const recommendCrop = async (req, res) => {
   try {
@@ -101,21 +165,25 @@ else {
   score = 50;
 }
 
-    res.status(200).json({
-    success: true,
-    recommendation: crop,
-    reason,
-    score,
-    input: {
-        nitrogen,
-        phosphorus,
-        potassium,
-        temperature,
-        humidity,
-        ph,
-        rainfall,
-      },
-    });
+
+const fertilizer = getFertilizerRecommendation(crop);
+
+  res.status(200).json({
+  success: true,
+  recommendation: crop,
+  fertilizer,
+  score,
+  reason,
+  input: {
+    nitrogen,
+    phosphorus,
+    potassium,
+    temperature,
+    humidity,
+    ph,
+    rainfall,
+  },
+});
 
   } catch (error) {
     console.error(error);
@@ -126,6 +194,8 @@ else {
     });
   }
 };
+
+
 
 module.exports = {
   recommendCrop,

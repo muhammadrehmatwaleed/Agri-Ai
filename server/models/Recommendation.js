@@ -13,6 +13,34 @@ const recommendationSchema = new mongoose.Schema(
       required: true,
     },
 
+    score: {
+    type: Number,
+    },
+
+    reason: {
+    type: String,
+    },
+
+    fertilizerName: {
+    type: String,
+    },
+
+    fertilizerType: {
+    type: String,
+    },
+
+    fertilizerDosage: {
+    type: String,
+    },
+
+    fertilizerMethod: {
+    type: String,
+    },
+
+    fertilizerPrecaution: {
+    type: String,
+    },
+
     city: {
       type: String,
       required: true,

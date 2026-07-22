@@ -15,6 +15,8 @@ import ProtectedRoute from "./components/ProtectedRoute";
 import PublicRoute from "./components/PublicRoute";
 import RecommendationHistory from "./pages/RecommendationHistory";
 import Dashboard from "./pages/Dashboard";
+import Register from "./pages/Register";
+import DiseaseDetection from "./pages/DiseaseDetection";
 
 function App() {
   return (
@@ -29,7 +31,9 @@ function App() {
       <Route path="contact" element={<Contact />} />
     </Route>
     <Route path="/counter" element={<Counter />} />
+    <Route path="/disease" element={<DiseaseDetection />} />
     <Route path="/login" element={<PublicRoute><Login /></PublicRoute>}/>
+    <Route path="register" element={<PublicRoute><Register /></PublicRoute>}/>
     <Route path="/farmer" element={<ProtectedRoute><Farmer /></ProtectedRoute>}/>
     <Route path="/crop" element={<ProtectedRoute><CropRecommendation /></ProtectedRoute>}/>
     <Route path="/weather" element={<ProtectedRoute><Weather /></ProtectedRoute>}/>

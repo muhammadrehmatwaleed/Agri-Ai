@@ -1,8 +1,10 @@
 import { useState } from "react";
+import { useNavigate } from "react-router-dom";
 import { FaEye, FaEyeSlash, FaLeaf } from "react-icons/fa";
 import { loginFarmer } from "../services/authService";
 
 function Login() {
+  const navigate = useNavigate();
   const [showPassword, setShowPassword] = useState(false);
   const [email, setEmail] = useState("");
   const [password, setPassword] = useState("");
@@ -109,7 +111,10 @@ function Login() {
           <p className="text-center mt-6">
             Don't have an account?
 
-            <span className="text-green-700 font-semibold cursor-pointer ml-2">
+            <span
+              className="text-green-700 font-semibold cursor-pointer ml-2"
+              onClick={() => navigate("/register")}
+            >
               Register
             </span>
           </p>

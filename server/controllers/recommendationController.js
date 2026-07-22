@@ -4,19 +4,29 @@ const Recommendation = require("../models/Recommendation");
 const saveRecommendation = async (req, res) => {
   try {
     const recommendation = await Recommendation.create({
-      farmer: req.user.id,
+    farmer: req.user.id,
 
-      crop: req.body.crop,
-      city: req.body.city,
+    crop: req.body.crop,
 
-      temperature: req.body.temperature,
-      humidity: req.body.humidity,
-      rainfall: req.body.rainfall,
+    fertilizerName: req.body.fertilizerName,
+    fertilizerType: req.body.fertilizerType,
+    fertilizerDosage: req.body.fertilizerDosage,
+    fertilizerMethod: req.body.fertilizerMethod,
+    fertilizerPrecaution: req.body.fertilizerPrecaution,
 
-      nitrogen: req.body.nitrogen,
-      phosphorus: req.body.phosphorus,
-      potassium: req.body.potassium,
-      ph: req.body.ph,
+    score: req.body.score,
+    reason: req.body.reason,
+
+    city: req.body.city,
+
+    temperature: req.body.temperature,
+    humidity: req.body.humidity,
+    rainfall: req.body.rainfall,
+
+    nitrogen: req.body.nitrogen,
+    phosphorus: req.body.phosphorus,
+    potassium: req.body.potassium,
+    ph: req.body.ph,
     });
 
     res.status(201).json({

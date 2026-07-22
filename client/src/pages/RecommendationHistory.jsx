@@ -1,11 +1,13 @@
 import { useEffect, useState } from "react";
 import { getRecommendations, deleteRecommendation } from "../services/recommendationService";
 
+
 function RecommendationHistory() {
   const [recommendations, setRecommendations] = useState([]);
   const [loading, setLoading] = useState(true);
   const [search, setSearch] = useState("");
   const [sortOrder, setSortOrder] = useState("newest");
+  const [selectedRecommendation, setSelectedRecommendation] = useState(null);
 
   const [currentPage, setCurrentPage] = useState(1);
   const recommendationsPerPage = 5;
@@ -164,7 +166,48 @@ const totalPages = Math.ceil(
     <span className="text-sm text-gray-500">
       {new Date(item.createdAt).toLocaleDateString()}
     </span>
+
+<div className="mt-3 flex items-center gap-3">
+
+  <span className="font-semibold">
+    📊 Score: {item.score || 0}%
+  </span>
+
+  <span
+    className={`px-3 py-1 rounded-full text-white text-sm font-semibold
+      ${
+        item.score >= 90
+          ? "bg-green-600"
+          : item.score >= 70
+          ? "bg-yellow-500"
+          : "bg-red-600"
+      }`}
+  >
+    {item.score >= 90
+      ? "Excellent"
+      : item.score >= 70
+      ? "Good"
+      : "Poor"}
+  </span>
+
+</div>
   </div>
+
+
+
+  <div className="mt-4 bg-blue-50 border-l-4 border-blue-500 p-4 rounded-lg">
+
+  <h3 className="font-bold text-blue-700">
+    🧠 AI Recommendation Reason
+  </h3>
+
+  <p className="mt-2 text-gray-700">
+    {item.reason}
+  </p>
+
+</div>
+
+  
 
   <div className="grid grid-cols-2 gap-4 text-gray-700">
 
@@ -184,6 +227,42 @@ const totalPages = Math.ceil(
 
     <p><strong>🪴 Potassium:</strong> {item.potassium}</p>
 
+
+    <div className="col-span-2 mt-4 border-t pt-4">
+  <h3 className="text-lg font-bold text-green-700 mb-3">
+    🌱 Fertilizer Recommendation
+  </h3>
+
+  <div className="grid grid-cols-2 gap-4">
+
+    <p>
+      <strong>📦 Name:</strong>{" "}
+      {item.fertilizerName || "N/A"}
+    </p>
+
+    <p>
+      <strong>🧪 Type:</strong>{" "}
+      {item.fertilizerType || "N/A"}
+    </p>
+
+    <p>
+      <strong>⚖️ Dosage:</strong>{" "}
+      {item.fertilizerDosage || "N/A"}
+    </p>
+
+    <p>
+      <strong>🌾 Method:</strong>{" "}
+      {item.fertilizerMethod || "N/A"}
+    </p>
+
+    <div className="col-span-2 bg-yellow-50 border-l-4 border-yellow-400 p-3 rounded">
+      <strong>⚠️ Precaution:</strong><br />
+      {item.fertilizerPrecaution || "N/A"}
+    </div>
+
+  </div>
+</div>
+
   </div>
 
   <div className="mt-4 text-sm text-gray-500">
@@ -191,12 +270,17 @@ const totalPages = Math.ceil(
   </div>
 
   <div className="mt-5 flex justify-end">
-  <button
+   <button
+   onClick={() => setSelectedRecommendation(item)}
+   className="bg-blue-600 text-white px-4 py-2 rounded-lg hover:bg-blue-700 transition">
+  👁 View Details
+   </button>
+
+   <button
     onClick={() => handleDelete(item._id)}
-    className="bg-red-600 text-white px-4 py-2 rounded-lg hover:bg-red-700 transition"
-  >
+    className="bg-red-600 text-white px-4 py-2 rounded-lg hover:bg-red-700 transition">
     🗑 Delete
-  </button>
+   </button>
 </div>
 </div>
           ))
@@ -244,6 +328,100 @@ const totalPages = Math.ceil(
 
         </div>
       )}
+
+
+      {selectedRecommendation && (
+  <div className="fixed inset-0 bg-black/50 flex items-center justify-center z-50">
+
+    <div className="bg-white rounded-2xl shadow-2xl p-8 w-full max-w-2xl relative">
+
+      <button
+        onClick={() => setSelectedRecommendation(null)}
+        className="absolute top-4 right-4 text-2xl font-bold text-gray-500 hover:text-red-600"
+      >
+        ✖
+      </button>
+
+      <h2 className="text-3xl font-bold text-green-700 mb-6">
+        🌾 Recommendation Details
+      </h2>
+
+      <div className="grid grid-cols-2 gap-4">
+
+        <p><strong>Crop:</strong> {selectedRecommendation.crop}</p>
+
+        <p><strong>City:</strong> {selectedRecommendation.city}</p>
+
+        <p><strong>Temperature:</strong> {selectedRecommendation.temperature} °C</p>
+
+        <p><strong>Humidity:</strong> {selectedRecommendation.humidity}%</p>
+
+        <p><strong>Rainfall:</strong> {selectedRecommendation.rainfall} mm</p>
+
+        <p><strong>pH:</strong> {selectedRecommendation.ph}</p>
+
+        <p><strong>Nitrogen:</strong> {selectedRecommendation.nitrogen}</p>
+
+        <p><strong>Phosphorus:</strong> {selectedRecommendation.phosphorus}</p>
+
+        <p><strong>Potassium:</strong> {selectedRecommendation.potassium}</p>
+
+        <p><strong>Score:</strong> {selectedRecommendation.score}%</p>
+
+      </div>
+
+      <div className="mt-6">
+
+        <h3 className="font-bold text-blue-700">
+          🧠 AI Recommendation Reason
+        </h3>
+
+        <p className="mt-2 text-gray-700">
+          {selectedRecommendation.reason}
+        </p>
+
+      </div>
+
+      <div className="mt-6 bg-green-50 p-4 rounded-lg">
+
+        <h3 className="font-bold text-green-700">
+          🌿 Fertilizer Recommendation
+        </h3>
+
+        <p><strong>Name:</strong> {selectedRecommendation.fertilizerName}</p>
+
+        <p><strong>Type:</strong> {selectedRecommendation.fertilizerType}</p>
+
+        <p><strong>Dosage:</strong> {selectedRecommendation.fertilizerDosage}</p>
+
+        <p><strong>Method:</strong> {selectedRecommendation.fertilizerMethod}</p>
+
+        <p><strong>Precaution:</strong> {selectedRecommendation.fertilizerPrecaution}</p>
+
+  <div className="mt-8 flex justify-end gap-3">
+
+  <button
+    onClick={() => window.print()}
+    className="bg-indigo-600 text-white px-5 py-2 rounded-lg hover:bg-indigo-700 transition"
+  >
+    🖨 Print Report
+  </button>
+
+  <button
+    onClick={() => setSelectedRecommendation(null)}
+    className="bg-gray-600 text-white px-5 py-2 rounded-lg hover:bg-gray-700 transition"
+  >
+    Close
+  </button>
+
+</div>
+
+      </div>
+
+    </div>
+
+  </div>
+)}
 
     </div>
   );
